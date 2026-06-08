@@ -1,21 +1,22 @@
 :root {
-  /* Golden Ratio (1.618) Spacing & Typography System */
-  --space-xs: 10px;
-  --space-sm: 16px;
-  --space-md: 26px; /* 16 * 1.618 */
-  --space-lg: 42px; /* 26 * 1.618 */
-  --space-xl: 68px; /* 42 * 1.618 */
-  --space-xxl: 110px; /* 68 * 1.618 */
+  /* COLOR SYSTEM */
+  --bg-base: #0A0A0A;
+  --bg-surface: #111111;
+  --bg-elevated: #1A1A1A;
+  --accent-gold: #C9A84C;
+  --accent-gold-dim: #8A6E2F;
+  --text-primary: #F0EDE6;
+  --text-secondary: #8A8780;
+  --text-dim: #4A4845;
+  --border: rgba(201, 168, 76, 0.12);
+  --model-nano: #5B8EFF;
+  --model-gpt: #10A37F;
+  --model-mj: #EF4444;
 
-  /* Premium Dark Mode Colors (Researched) */
-  --background: #121212; /* Modern Neutral Dark Grey */
-  --surface: #1E1E1E;    /* Elevated Surface */
-  --surface-hover: #2A2A2A;
-  --text-primary: #E5E5E5; /* Off-White for eye comfort */
-  --text-secondary: #A0A0A0;
-  --accent: #818CF8;     /* Desaturated Soft Indigo (Premium AI Feel) */
-  --accent-hover: #6366F1;
-  --border: rgba(255, 255, 255, 0.06);
+  /* Typography Variables from layout.js */
+  --font-heading: var(--font-playfair), serif;
+  --font-body: var(--font-dm-sans), sans-serif;
+  --font-mono: var(--font-jetbrains), monospace;
 }
 
 * {
@@ -25,11 +26,17 @@
 }
 
 body {
-  background-color: var(--background);
+  background-color: var(--bg-base);
   color: var(--text-primary);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
+  font-family: var(--font-body);
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  font-weight: 500;
+  color: var(--text-primary);
 }
 
 a {
@@ -42,19 +49,30 @@ button {
   border: none;
   cursor: pointer;
   font-family: inherit;
+  color: inherit;
+  transition: all 0.2s ease;
 }
 
-/* Utilities */
+/* Base Utilities */
 .container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 20px;
+  padding: 0 24px;
 }
 
-/* Glassmorphism */
-.glass {
-  background: rgba(26, 29, 36, 0.7);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--border);
+/* Text Highlights */
+.text-gold {
+  color: var(--accent-gold);
+}
+
+/* Animations */
+@keyframes staggerFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

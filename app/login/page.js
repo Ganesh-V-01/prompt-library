@@ -1,208 +1,39 @@
-'use client';
-import { useState } from 'react';
-import { supabase } from '@/utils/supabase';
 import Link from 'next/link';
+import { BookOpen } from 'lucide-react';
 
-export default function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [isSignUp, setIsSignUp] = useState(false);
-  const [message, setMessage] = useState('');
-  const [loading, setLoading] = useState(false);
-
-  const handleAuth = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setMessage('');
-
-    try {
-      if (isSignUp) {
-        const { error } = await supabase.auth.signUp({ email, password });
-        if (error) throw error;
-        setMessage('Check your email for the confirmation link!');
-      } else {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
-        setMessage('Successfully logged in!');
-      }
-    } catch (error) {
-      setMessage(error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
+export default function LoginPage() {
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: 'var(--bg-base)' }}>
-      
-      {/* Left Panel - Editorial Branding */}
-      <div style={{
-        flex: 1,
-        backgroundColor: '#050505',
-        borderRight: '1px solid var(--border)',
-        padding: '60px',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'space-between',
-        position: 'relative',
-        overflow: 'hidden'
-      }}>
-        {/* Logo */}
-        <Link href="/">
-          <div style={{ 
-            fontFamily: 'var(--font-heading)', 
-            fontSize: '1.75rem', 
-            fontWeight: '600', 
-            letterSpacing: '-0.02em',
-            color: 'var(--text-primary)' 
-          }}>
-            Prompt<span style={{ color: 'var(--accent-gold)' }}>Gram</span>
-          </div>
-        </Link>
-
-        {/* Quote */}
-        <div style={{ maxWidth: '400px' }}>
-          <h2 style={{ 
-            fontFamily: 'var(--font-heading)', 
-            fontSize: '36px', 
-            lineHeight: '1.2', 
-            marginBottom: '16px',
-            color: 'var(--text-primary)'
-          }}>
-            "The right words<br/>can create worlds."
-          </h2>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '15px', fontFamily: 'var(--font-body)' }}>
-            Join the definitive library of prompts for next-generation AI models.
-          </p>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--surface-hover)' }}>
+      <div style={{ background: 'var(--background)', padding: '48px', borderRadius: '12px', width: '100%', maxWidth: '400px', boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1)', border: '1px solid var(--border)' }}>
+        
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '24px' }}>
+          <BookOpen size={48} />
         </div>
-        <div /> {/* Spacer */}
-      </div>
+        
+        <h1 style={{ textAlign: 'center', fontSize: '1.5rem', fontWeight: 700, marginBottom: '8px' }}>Welcome back</h1>
+        <p style={{ textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '32px' }}>Sign in to Prompt Library</p>
 
-      {/* Right Panel - Form */}
-      <div style={{
-        flex: 1,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '40px'
-      }}>
-        <div style={{ width: '100%', maxWidth: '380px' }}>
-          <h1 style={{ 
-            fontFamily: 'var(--font-heading)', 
-            fontSize: '32px', 
-            marginBottom: '8px',
-            color: 'var(--text-primary)' 
-          }}>
-            {isSignUp ? 'Create an account' : 'Welcome back'}
-          </h1>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '15px', marginBottom: '32px' }}>
-            {isSignUp ? 'Enter your details below to create your account.' : 'Enter your details below to log into your account.'}
-          </p>
-
-          <form onSubmit={handleAuth} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            <div>
-              <label style={{ display: 'block', marginBottom: '8px', fontSize: '13px', color: 'var(--text-secondary)' }}>Email</label>
-              <input 
-                type="email" 
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="name@example.com"
-                required
-                style={{
-                  width: '100%',
-                  padding: '12px 16px',
-                  backgroundColor: 'var(--bg-surface)',
-                  border: '1px solid var(--border)',
-                  borderRadius: '4px',
-                  color: 'var(--text-primary)',
-                  fontSize: '15px',
-                  outline: 'none',
-                  transition: 'border-color 0.2s ease',
-                  fontFamily: 'var(--font-body)'
-                }}
-                onFocus={(e) => e.target.style.borderColor = 'var(--accent-gold)'}
-                onBlur={(e) => e.target.style.borderColor = 'var(--border)'}
-              />
-            </div>
-            <div>
-              <label style={{ display: 'block', marginBottom: '8px', fontSize: '13px', color: 'var(--text-secondary)' }}>Password</label>
-              <input 
-                type="password" 
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                style={{
-                  width: '100%',
-                  padding: '12px 16px',
-                  backgroundColor: 'var(--bg-surface)',
-                  border: '1px solid var(--border)',
-                  borderRadius: '4px',
-                  color: 'var(--text-primary)',
-                  fontSize: '15px',
-                  outline: 'none',
-                  transition: 'border-color 0.2s ease',
-                  fontFamily: 'var(--font-body)'
-                }}
-                onFocus={(e) => e.target.style.borderColor = 'var(--accent-gold)'}
-                onBlur={(e) => e.target.style.borderColor = 'var(--border)'}
-              />
-            </div>
-
-            {message && (
-              <div style={{ 
-                color: message.includes('Success') || message.includes('Check') ? '#10A37F' : '#EF4444', 
-                fontSize: '13px',
-                marginTop: '-8px'
-              }}>
-                {message}
-              </div>
-            )}
-
-            <button 
-              type="submit" 
-              disabled={loading}
-              style={{
-                width: '100%',
-                padding: '12px',
-                backgroundColor: 'var(--accent-gold)',
-                color: 'var(--bg-base)',
-                fontWeight: '600',
-                borderRadius: '4px',
-                fontSize: '14px',
-                opacity: loading ? 0.7 : 1,
-                transition: 'opacity 0.2s ease',
-                marginTop: '8px'
-              }}>
-              {loading ? 'Processing...' : (isSignUp ? 'Continue' : 'Continue')}
-            </button>
-            
-            <button 
-              type="button"
-              style={{
-                width: '100%',
-                padding: '12px',
-                backgroundColor: 'transparent',
-                color: 'var(--text-primary)',
-                border: '1px solid var(--border)',
-                fontWeight: '500',
-                borderRadius: '4px',
-                fontSize: '14px',
-                transition: 'background-color 0.2s ease'
-              }}
-              onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-surface)'}
-              onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-            >
-              Or continue with Google
-            </button>
-          </form>
-
-          <div style={{ marginTop: '32px', textAlign: 'center' }}>
-            <button 
-              onClick={() => { setIsSignUp(!isSignUp); setMessage(''); }}
-              style={{ color: 'var(--text-secondary)', fontSize: '13px' }}>
-              {isSignUp ? 'Already have an account? Sign In' : "Don't have an account? Sign Up"}
-            </button>
+        <form style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div>
+            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '8px' }}>Email</label>
+            <input type="email" placeholder="you@example.com" style={{ width: '100%', padding: '12px', borderRadius: '6px', border: '1px solid var(--border)', fontSize: '0.95rem', outline: 'none' }} />
           </div>
+          <div>
+            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '8px' }}>Password</label>
+            <input type="password" placeholder="••••••••" style={{ width: '100%', padding: '12px', borderRadius: '6px', border: '1px solid var(--border)', fontSize: '0.95rem', outline: 'none' }} />
+          </div>
+          
+          <button type="submit" style={{ background: 'var(--text-primary)', color: 'var(--background)', padding: '12px', borderRadius: '6px', fontWeight: 600, fontSize: '1rem', marginTop: '8px', cursor: 'pointer', border: 'none' }}>
+            Sign In
+          </button>
+        </form>
+
+        <div style={{ marginTop: '24px', textAlign: 'center', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+          Don't have an account? <Link href="/" style={{ color: 'var(--text-primary)', fontWeight: 600 }}>Sign up</Link>
+        </div>
+        
+        <div style={{ marginTop: '24px', textAlign: 'center' }}>
+          <Link href="/" style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>← Back to Home</Link>
         </div>
       </div>
     </div>

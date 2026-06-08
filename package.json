@@ -11,13 +11,19 @@
   "dependencies": {
     "@sentry/nextjs": "^10.56.0",
     "@supabase/supabase-js": "^2.43.4",
-    "next": "14.2.3",
+    "lucide-react": "^0.395.0",
+    "next": "16.2.7",
     "posthog-js": "^1.137.0",
     "react": "^18",
     "react-dom": "^18"
   },
   "devDependencies": {
-    "eslint": "^8",
-    "eslint-config-next": "14.2.3"
+    "eslint": "^9.0.0",
+    "eslint-config-next": "16.2.7"
+  },
+  "overrides": {
+    "glob": "^11.0.0",
+    "minimatch": "^10.0.0",
+    "postcss": "^8.5.10"
   }
 }

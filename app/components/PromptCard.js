@@ -1,9 +1,21 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { Copy, Check, Heart } from 'lucide-react';
 import Link from 'next/link';
 
-export default function PromptCard({ image, prompt, model, index = 0 }) {
+export default function PromptCard({ id, image, prompt, model, title = "Untitled Prompt" }) {
   const [copied, setCopied] = useState(false);
+  const [liked, setLiked] = useState(false);
+
+  useEffect(() => {
+    const saved = localStorage.getItem('favorites');
+    if (saved) {
+      const favs = JSON.parse(saved);
+      if (favs.includes(id)) {
+        setLiked(true);
+      }
+    }
+  }, [id]);
 
   const handleCopy = (e) => {
     e.preventDefault();
@@ -13,131 +25,115 @@ export default function PromptCard({ image, prompt, model, index = 0 }) {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const getModelColor = () => {
-    if (model?.toLowerCase() === 'nanobanana') return 'var(--model-nano)';
-    if (model?.toLowerCase() === 'chatgpt') return 'var(--model-gpt)';
-    if (model?.toLowerCase() === 'midjourney') return 'var(--model-mj)';
-    return 'var(--text-secondary)';
+  const handleLike = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const saved = localStorage.getItem('favorites');
+    let favs = saved ? JSON.parse(saved) : [];
+    
+    if (liked) {
+      favs = favs.filter(f => f !== id);
+      setLiked(false);
+    } else {
+      favs.push(id);
+      setLiked(true);
+    }
+    
+    localStorage.setItem('favorites', JSON.stringify(favs));
+    window.dispatchEvent(new Event('favoritesUpdated'));
   };
 
   return (
-    <Link href={`/prompt/${index}`}>
-      <div 
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          backgroundColor: 'var(--bg-surface)',
-          border: '1px solid var(--border)',
-          borderRadius: '8px',
-          overflow: 'hidden',
-          cursor: 'pointer',
-          opacity: 0,
-          animation: 'staggerFadeIn 0.6s ease forwards',
-          animationDelay: `${index * 0.05}s`,
-          transition: 'all 0.2s ease'
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.borderColor = 'var(--accent-gold)';
-          e.currentTarget.style.transform = 'translateY(-2px)';
-          e.currentTarget.style.backgroundColor = 'var(--bg-elevated)';
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.borderColor = 'var(--border)';
-          e.currentTarget.style.transform = 'translateY(0)';
-          e.currentTarget.style.backgroundColor = 'var(--bg-surface)';
-        }}
-      >
+    <div className="prompt-card" style={{ display: 'flex', flexDirection: 'column', position: 'relative' }}>
+      <Link href={`/prompt/${id}`} style={{ display: 'block', position: 'relative' }}>
+        {/* Clickable Image */}
+        <img src={image || 'https://placehold.co/600x800/eeeeee/999999?text=Placeholder'} alt={title} style={{ width: '100%', display: 'block' }} />
         
-        {/* Image Section */}
+        {/* Top Model Badge */}
         <div style={{
-          position: 'relative',
-          width: '100%',
-          aspectRatio: '1 / 1',
-          backgroundColor: '#050505',
-          backgroundImage: `url(${image})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          borderBottom: '1px solid var(--border)'
+          position: 'absolute',
+          top: '12px',
+          left: '12px',
+          backgroundColor: 'rgba(255, 255, 255, 0.95)',
+          color: '#000000',
+          padding: '4px 8px',
+          borderRadius: '4px',
+          fontSize: '0.7rem',
+          fontWeight: '700',
+          letterSpacing: '0.5px',
+          textTransform: 'uppercase',
+          border: '1px solid var(--border)'
         }}>
-          {/* Top Model Badge */}
-          <div style={{
-            position: 'absolute',
-            top: '12px',
-            left: '12px',
-            backgroundColor: 'rgba(10, 10, 10, 0.85)',
-            color: 'var(--text-primary)',
-            padding: '4px 10px',
-            borderRadius: '100px',
-            fontSize: '11px',
-            fontWeight: '500',
-            border: '1px solid var(--border)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px'
-          }}>
-            <span style={{ 
-              width: '6px', 
-              height: '6px', 
-              borderRadius: '50%', 
-              backgroundColor: getModelColor() 
-            }} />
-            {model || 'Model'}
-          </div>
+          {model}
         </div>
+      </Link>
 
-        {/* Text Section */}
-        <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
-          <p style={{
-            fontFamily: 'var(--font-mono)',
-            fontSize: '13px',
-            lineHeight: '1.5',
-            color: 'var(--text-primary)',
-            marginBottom: '24px',
-            display: '-webkit-box',
-            WebkitLineClamp: 3,
-            WebkitBoxOrient: 'vertical',
-            overflow: 'hidden'
-          }}>
-            {prompt}
-          </p>
-
-          <div style={{ 
-            marginTop: 'auto', 
-            display: 'flex', 
-            justifyContent: 'space-between', 
-            alignItems: 'center' 
-          }}>
-            <span style={{ fontSize: '12px', color: 'var(--text-dim)' }}>
-              Photography
-            </span>
-            
-            <button 
-              onClick={handleCopy}
-              style={{
-                padding: '6px 12px',
-                backgroundColor: 'transparent',
-                color: 'var(--accent-gold)',
-                border: '1px solid var(--accent-gold-dim)',
-                borderRadius: '4px',
-                fontSize: '11px',
-                fontWeight: '600',
-                transition: 'all 0.2s ease',
-                transform: copied ? 'scale(0.96)' : 'scale(1)'
-              }}
-              onMouseOver={(e) => {
-                e.currentTarget.style.borderColor = 'var(--accent-gold)';
-                e.currentTarget.style.backgroundColor = 'rgba(201, 168, 76, 0.05)';
-              }}
-              onMouseOut={(e) => {
-                e.currentTarget.style.borderColor = 'var(--accent-gold-dim)';
-                e.currentTarget.style.backgroundColor = 'transparent';
-              }}
-            >
-              {copied ? 'Copied ✓' : 'Copy'}
-            </button>
-          </div>
+      {/* Desktop Hover Overlay with Title and Actions */}
+      <div className="card-overlay" style={{ pointerEvents: 'none' }}>
+        <div className="card-title">{title}</div>
+        
+        <div className="card-actions" style={{ display: 'flex', gap: '8px', pointerEvents: 'auto' }}>
+          <button 
+            onClick={handleCopy}
+            title="Copy Prompt"
+            style={{
+              flex: 1,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '6px',
+              padding: '10px',
+              border: 'none',
+              borderRadius: '6px',
+              backgroundColor: copied ? '#10B981' : '#FFFFFF',
+              color: copied ? '#FFFFFF' : '#000000',
+              fontWeight: 600,
+              fontSize: '0.85rem',
+              cursor: 'pointer',
+              transition: 'all 0.2s'
+            }}>
+            {copied ? <Check size={16} /> : <Copy size={16} />}
+            {copied ? 'Copied' : 'Copy Prompt'}
+          </button>
+          
+          <button 
+            onClick={handleLike}
+            title="Favorite"
+            style={{
+              width: '40px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              border: 'none',
+              borderRadius: '6px',
+              backgroundColor: '#FFFFFF',
+              color: liked ? '#EF4444' : '#000000',
+              cursor: 'pointer',
+              transition: 'all 0.2s'
+            }}>
+            <Heart size={16} fill={liked ? '#EF4444' : 'none'} />
+          </button>
         </div>
+      </div>
 
+      {/* Mobile Permanent Footer (Hidden on Desktop via CSS) */}
+      <div className="card-actions-mobile">
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <button 
+            onClick={handleCopy}
+            className="mobile-action-btn"
+            style={{ backgroundColor: copied ? '#10B981' : 'var(--surface-hover)', color: copied ? '#FFF' : 'var(--text-primary)' }}>
+            {copied ? <Check size={16} /> : <Copy size={16} />}
+            {copied ? 'Copied' : 'Prompt'}
+          </button>
+          <button 
+            onClick={handleLike}
+            className="mobile-action-btn-icon"
+            style={{ color: liked ? '#EF4444' : 'var(--text-primary)' }}>
+            <Heart size={16} fill={liked ? '#EF4444' : 'none'} />
+          </button>
+        </div>
       </div>
     </Link>
   );

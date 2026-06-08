@@ -76,3 +76,21 @@ button {
     transform: translateY(0);
   }
 }
+
+/* Custom Components */
+.search-input {
+  width: 100%;
+  padding: 16px 24px;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text-primary);
+  font-size: 15px;
+  outline: none;
+  transition: border-color 0.2s ease;
+  font-family: var(--font-body);
+}
+
+.search-input:focus {
+  border-color: var(--accent-gold);
+}

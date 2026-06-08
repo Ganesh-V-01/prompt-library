@@ -59,20 +59,7 @@ export default async function Home() {
             <input 
               type="text" 
               placeholder="Search cinematic portraits..."
-              style={{
-                width: '100%',
-                padding: '16px 24px',
-                backgroundColor: 'var(--bg-surface)',
-                border: '1px solid var(--border)',
-                borderRadius: '4px',
-                color: 'var(--text-primary)',
-                fontSize: '15px',
-                outline: 'none',
-                transition: 'border-color 0.2s ease',
-                fontFamily: 'var(--font-body)'
-              }}
-              onFocus={(e) => e.target.style.borderColor = 'var(--accent-gold)'}
-              onBlur={(e) => e.target.style.borderColor = 'var(--border)'}
+              className="search-input"
             />
           </div>
 

@@ -135,6 +135,6 @@ export default function PromptCard({ id, image, prompt, model, title = "Untitled
           </button>
         </div>
       </div>
-    </Link>
+    </div>
   );
 }

@@ -19,9 +19,9 @@ export default function AdminDashboard() {
     const checkUser = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       const currentUser = session?.user;
-      const adminUuid = process.env.NEXT_PUBLIC_ADMIN_UUID || '0fa18228-1941-4fbd-a35a-53106eec0137';
+      const adminUuids = (process.env.NEXT_PUBLIC_ADMIN_UUID || '0fa18228-1941-4fbd-a35a-53106eec0137,be3e4bfc-9008-4c03-a11b-8eef831df503').split(',');
       
-      if (!currentUser || currentUser.id !== adminUuid) {
+      if (!currentUser || !adminUuids.includes(currentUser.id)) {
         router.push('/');
       } else {
         setUser(currentUser);

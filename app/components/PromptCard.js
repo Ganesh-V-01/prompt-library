@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { Copy, Check, Heart } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function PromptCard({ id, image, prompt, model, title = "Untitled Prompt" }) {
   const [copied, setCopied] = useState(false);
@@ -48,7 +49,14 @@ export default function PromptCard({ id, image, prompt, model, title = "Untitled
     <div className="prompt-card" style={{ display: 'flex', flexDirection: 'column', position: 'relative' }}>
       <Link href={`/prompt/${id}`} style={{ display: 'block', position: 'relative' }}>
         {/* Clickable Image */}
-        <img src={image || 'https://placehold.co/600x800/eeeeee/999999?text=Placeholder'} alt={title} style={{ width: '100%', display: 'block' }} />
+        <Image 
+          src={image || 'https://placehold.co/600x800/eeeeee/999999?text=Placeholder'} 
+          alt={title} 
+          width={600}
+          height={800}
+          style={{ width: '100%', height: 'auto', display: 'block' }} 
+          unoptimized={!image} // placehold.co sometimes fails optimization
+        />
         
         {/* Top Model Badge */}
         <div style={{

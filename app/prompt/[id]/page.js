@@ -1,6 +1,7 @@
 import { supabase } from '@/utils/supabase';
 import { Copy, Heart, Check, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 import PromptCard from '../../components/PromptCard';
 
 // This is a simple client component wrapper for the copy button logic
@@ -42,8 +43,14 @@ export default async function PromptDetail({ params }) {
       <div className="detail-container" style={{ display: 'flex', height: 'calc(100vh - 120px)', minHeight: '600px', gap: '40px', marginBottom: '64px' }}>
         
         {/* Left Side: Image (Strict bounds, object-fit contain) */}
-        <div className="detail-image-wrapper" style={{ flex: '1 1 60%', height: '100%', background: 'var(--surface-hover)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', padding: '16px', border: '1px solid var(--border)' }}>
-          <img src={item.image_url} alt={item.title} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+        <div className="detail-image-wrapper" style={{ position: 'relative', flex: '1 1 60%', height: '100%', background: 'var(--surface-hover)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', padding: '16px', border: '1px solid var(--border)' }}>
+          <Image 
+            src={item.image_url} 
+            alt={item.title} 
+            fill
+            style={{ objectFit: 'contain' }} 
+            priority
+          />
         </div>
 
         {/* Right Side: Prompt Details */}

@@ -452,3 +452,22 @@ button {
   .detail-container { flex-direction: column-reverse; gap: 24px; }
   .detail-left { max-width: 100%; }
 }
+
+/* ─── Mobile Responsiveness & Accessibility Overrides ─── */
+body {
+  overflow-x: hidden; /* Prevent horizontal scroll on mobile */
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  /* Prevent iOS auto-zoom by ensuring inputs are at least 16px */
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+  
+  /* Ensure all buttons have a minimum touch target size of 44x44px */
+  button, .btn, .card-btn, .mobile-action-btn, .mobile-action-btn-icon {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}

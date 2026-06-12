@@ -105,7 +105,7 @@ export default function AdminDashboard() {
               type="file" 
               accept="image/*"
               onChange={(e) => setFile(e.target.files[0])}
-              style={{ color: 'white' }}
+              style={{ color: 'var(--text-primary)' }}
             />
           </div>
 
@@ -120,7 +120,7 @@ export default function AdminDashboard() {
                 backgroundColor: 'var(--background)',
                 border: '1px solid var(--border)',
                 borderRadius: '8px',
-                color: 'white',
+                color: 'var(--text-primary)',
                 fontSize: '1rem'
               }}
             >
@@ -143,7 +143,7 @@ export default function AdminDashboard() {
                 backgroundColor: 'var(--background)',
                 border: '1px solid var(--border)',
                 borderRadius: '8px',
-                color: 'white',
+                color: 'var(--text-primary)',
                 fontSize: '1rem',
                 resize: 'vertical'
               }}
@@ -161,15 +161,15 @@ export default function AdminDashboard() {
             disabled={uploading}
             style={{
               padding: '16px',
-              backgroundColor: 'var(--accent)',
-              color: '#121212',
+              backgroundColor: 'var(--text-primary)',
+              color: 'var(--background)',
               fontWeight: 'bold',
               borderRadius: '10px',
               fontSize: '1rem',
               textTransform: 'uppercase',
               opacity: uploading ? 0.7 : 1,
               transition: 'all 0.2s ease',
-              boxShadow: '0 4px 16px rgba(129,140,248,0.2)'
+              boxShadow: '0 4px 16px rgba(0,0,0,0.1)'
             }}>
             {uploading ? 'Publishing...' : 'Publish to Feed'}
           </button>

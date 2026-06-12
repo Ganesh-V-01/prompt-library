@@ -6,28 +6,43 @@ import { supabase } from '@/utils/supabase';
 import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
+  const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [message, setMessage] = useState(null);
   const router = useRouter();
 
-  const handleLogin = async (e) => {
+  const handleAuth = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    setMessage(null);
     
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (error) {
-      setError(error.message);
-      setLoading(false);
+    if (isSignUp) {
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+      });
+      if (error) {
+        setError(error.message);
+      } else {
+        setMessage('Sign up successful! You are now logged in.');
+        router.push('/admin');
+      }
     } else {
-      router.push('/admin');
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      if (error) {
+        setError(error.message);
+      } else {
+        router.push('/admin');
+      }
     }
+    setLoading(false);
   };
 
   return (
@@ -38,12 +53,17 @@ export default function LoginPage() {
           <BookOpen size={48} />
         </div>
         
-        <h1 style={{ textAlign: 'center', fontSize: '1.5rem', fontWeight: 700, marginBottom: '8px' }}>Welcome back</h1>
-        <p style={{ textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '32px' }}>Sign in to Prompt Library</p>
+        <h1 style={{ textAlign: 'center', fontSize: '1.5rem', fontWeight: 700, marginBottom: '8px' }}>
+          {isSignUp ? 'Create an Account' : 'Welcome back'}
+        </h1>
+        <p style={{ textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '32px' }}>
+          {isSignUp ? 'Sign up for Prompt Library' : 'Sign in to Prompt Library'}
+        </p>
 
         {error && <div style={{ color: '#EF4444', textAlign: 'center', marginBottom: '16px', fontSize: '0.9rem' }}>{error}</div>}
+        {message && <div style={{ color: '#10B981', textAlign: 'center', marginBottom: '16px', fontSize: '0.9rem' }}>{message}</div>}
 
-        <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <form onSubmit={handleAuth} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div>
             <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '8px' }}>Email</label>
             <input 
@@ -68,12 +88,18 @@ export default function LoginPage() {
           </div>
           
           <button type="submit" disabled={loading} style={{ background: 'var(--text-primary)', color: 'var(--background)', padding: '12px', borderRadius: '6px', fontWeight: 600, fontSize: '1rem', marginTop: '8px', cursor: 'pointer', border: 'none', opacity: loading ? 0.7 : 1 }}>
-            {loading ? 'Signing in...' : 'Sign In'}
+            {loading ? 'Processing...' : (isSignUp ? 'Sign Up' : 'Sign In')}
           </button>
         </form>
 
         <div style={{ marginTop: '24px', textAlign: 'center', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-          Don't have an account? <Link href="/" style={{ color: 'var(--text-primary)', fontWeight: 600 }}>Sign up</Link>
+          {isSignUp ? 'Already have an account?' : "Don't have an account?"}
+          <button 
+            onClick={() => { setIsSignUp(!isSignUp); setError(null); setMessage(null); }} 
+            style={{ color: 'var(--text-primary)', fontWeight: 600, background: 'none', border: 'none', cursor: 'pointer', marginLeft: '4px' }}
+          >
+            {isSignUp ? 'Sign in' : 'Sign up'}
+          </button>
         </div>
         
         <div style={{ marginTop: '24px', textAlign: 'center' }}>

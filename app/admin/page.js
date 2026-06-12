@@ -1,8 +1,10 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/utils/supabase';
+import { useRouter } from 'next/navigation';
 
 export default function AdminDashboard() {
+  const router = useRouter();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
@@ -16,11 +18,18 @@ export default function AdminDashboard() {
   useEffect(() => {
     const checkUser = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      setUser(session?.user || null);
-      setLoading(false);
+      const currentUser = session?.user;
+      const adminUuid = process.env.NEXT_PUBLIC_ADMIN_UUID || '0fa18228-1941-4fbd-a35a-53106eec0137';
+      
+      if (!currentUser || currentUser.id !== adminUuid) {
+        router.push('/');
+      } else {
+        setUser(currentUser);
+        setLoading(false);
+      }
     };
     checkUser();
-  }, []);
+  }, [router]);
 
   const handleUpload = async (e) => {
     e.preventDefault();
@@ -82,15 +91,6 @@ export default function AdminDashboard() {
 
   return (
     <div style={{ padding: 'var(--space-lg)', maxWidth: '600px', margin: '0 auto', minHeight: '100vh' }}>
-      
-      {/* TEMPORARY UUID DISPLAY FOR SECURITY SETUP */}
-      <div style={{ background: '#3b82f6', color: 'white', padding: '16px', borderRadius: '8px', marginBottom: '24px', border: '1px solid #2563eb' }}>
-        <strong>Your Admin UUID is:</strong><br />
-        <code style={{ background: 'rgba(0,0,0,0.2)', padding: '4px 8px', borderRadius: '4px', display: 'block', marginTop: '8px', fontSize: '1.1rem' }}>
-          {user.id}
-        </code>
-        <p style={{ fontSize: '0.85rem', marginTop: '8px', opacity: 0.9 }}>Copy this exactly and paste it into our chat so I can lock down the system!</p>
-      </div>
 
       <div className="glass" style={{ padding: 'var(--space-lg)', borderRadius: '16px' }}>
         <h1 style={{ fontSize: '2rem', marginBottom: 'var(--space-sm)' }}>Admin Dashboard</h1>

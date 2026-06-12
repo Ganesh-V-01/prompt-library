@@ -3,18 +3,16 @@ import TopFilterBar from './components/TopFilterBar';
 import PromptGrid from './components/PromptGrid';
 import { supabase } from '@/utils/supabase';
 
-export const revalidate = 10;
+// Revalidate every 60 seconds (Incremental Static Regeneration)
+// This is the key to scaling on the free tier: 1000 users = 1 DB read per minute.
+export const revalidate = 60;
 
-export default async function Home({ searchParams }) {
-  const resolvedParams = await searchParams;
-  const filter = resolvedParams?.filter || 'All';
-  const query = resolvedParams?.q || '';
-  const styleQuery = resolvedParams?.style || '';
-
+export default async function Home() {
   const { data: prompts, error } = await supabase
     .from('prompts')
     .select('*')
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: false })
+    .limit(500); // Fetch max 500 for the client grid
 
   if (error) {
     console.error("Error fetching prompts:", error);
@@ -27,32 +25,14 @@ export default async function Home({ searchParams }) {
     { id: 4, image_url: 'https://placehold.co/600x400/eeeeee/999999?text=Placeholder+4', prompt_text: 'Minimalist product photography, soft shadows.', model: 'Seedance' },
   ];
 
-  let displayPrompts = (prompts && prompts.length > 0) ? prompts : placeholders;
-
-  if (filter !== 'All' && filter !== 'Favorites' && filter !== 'History') {
-    displayPrompts = displayPrompts.filter(p => p.model === filter);
-  }
-  
-  if (query) {
-    displayPrompts = displayPrompts.filter(p => 
-      p.prompt_text.toLowerCase().includes(query.toLowerCase()) || 
-      p.model.toLowerCase().includes(query.toLowerCase())
-    );
-  }
-
-  if (styleQuery) {
-    displayPrompts = displayPrompts.filter(p => 
-      p.prompt_text.toLowerCase().includes(styleQuery.toLowerCase()) || 
-      (p.title && p.title.toLowerCase().includes(styleQuery.toLowerCase()))
-    );
-  }
+  const initialPrompts = (prompts && prompts.length > 0) ? prompts : placeholders;
 
   return (
     <>
       <div className="desktop-only-filter">
         <TopFilterBar />
       </div>
-      <PromptGrid initialPrompts={displayPrompts} />
+      <PromptGrid initialPrompts={initialPrompts} />
     </>
   );
 }

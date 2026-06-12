@@ -28,8 +28,8 @@ export default function LoginPage() {
       if (error) {
         setError(error.message);
       } else {
-        setMessage('Sign up successful! You are now logged in.');
-        router.push('/admin');
+        setMessage('Sign up successful! Please check your email to verify your account before logging in.');
+        // Don't auto-redirect, they must verify email first
       }
     } else {
       const { error } = await supabase.auth.signInWithPassword({
@@ -76,7 +76,14 @@ export default function LoginPage() {
             />
           </div>
           <div>
-            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '8px' }}>Password</label>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+              <label style={{ fontSize: '0.85rem', fontWeight: 600 }}>Password</label>
+              {!isSignUp && (
+                <Link href="/reset-password" style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textDecoration: 'underline' }}>
+                  Forgot Password?
+                </Link>
+              )}
+            </div>
             <input 
               type="password" 
               value={password}

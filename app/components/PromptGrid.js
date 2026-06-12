@@ -6,6 +6,8 @@ import { useSearchParams } from 'next/navigation';
 function GridContent({ initialPrompts }) {
   const searchParams = useSearchParams();
   const filter = searchParams.get('filter') || 'All';
+  const query = searchParams.get('q') || '';
+  const styleQuery = searchParams.get('style') || '';
   const [favorites, setFavorites] = useState([]);
   const [mounted, setMounted] = useState(false);
   
@@ -23,18 +25,36 @@ function GridContent({ initialPrompts }) {
   // Avoid hydration mismatch by waiting for mount
   if (!mounted) return <div className="masonry-grid"></div>;
 
-  const promptsToDisplay = filter === 'Favorites' 
-    ? initialPrompts.filter(p => favorites.includes(p.id))
-    : initialPrompts;
+  let displayPrompts = initialPrompts;
+
+  if (filter === 'Favorites') {
+    displayPrompts = displayPrompts.filter(p => favorites.includes(p.id));
+  } else if (filter !== 'All' && filter !== 'History') {
+    displayPrompts = displayPrompts.filter(p => p.model === filter);
+  }
+
+  if (query) {
+    displayPrompts = displayPrompts.filter(p => 
+      p.prompt_text.toLowerCase().includes(query.toLowerCase()) || 
+      p.model.toLowerCase().includes(query.toLowerCase())
+    );
+  }
+
+  if (styleQuery) {
+    displayPrompts = displayPrompts.filter(p => 
+      p.prompt_text.toLowerCase().includes(styleQuery.toLowerCase()) || 
+      (p.title && p.title.toLowerCase().includes(styleQuery.toLowerCase()))
+    );
+  }
 
   return (
     <div className="masonry-grid">
-      {promptsToDisplay.length === 0 && filter === 'Favorites' && (
+      {displayPrompts.length === 0 && filter === 'Favorites' && (
         <div style={{ width: '100%', padding: '40px', textAlign: 'center', color: 'var(--text-secondary)' }}>
           No favorites yet. Heart some prompts!
         </div>
       )}
-      {promptsToDisplay.map(prompt => (
+      {displayPrompts.map(prompt => (
         <PromptCard 
           key={prompt.id} 
           id={prompt.id} 

@@ -391,7 +391,7 @@ button {
   pointer-events: none;
 }
 
-.prompt-card:hover .card-overlay { opacity: 1; pointer-events: auto; }
+.prompt-card:hover .card-overlay { opacity: 1; pointer-events: none; }
 
 .mobile-only-backdrop { display: none; }
 
@@ -500,6 +500,8 @@ button {
   display: flex;
   gap: 8px;
 }
+
+.card-overlay .card-actions { pointer-events: auto; }
 
 .card-btn {
   background: white;

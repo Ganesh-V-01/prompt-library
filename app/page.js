@@ -1,38 +1,56 @@
-import PromptCard from './components/PromptCard';
 import TopFilterBar from './components/TopFilterBar';
 import PromptGrid from './components/PromptGrid';
+import Pagination from './components/Pagination';
 import { supabase } from '@/utils/supabase';
 
-// Revalidate every 60 seconds (Incremental Static Regeneration)
-// This is the key to scaling on the free tier: 1000 users = 1 DB read per minute.
 export const revalidate = 60;
+const PAGE_SIZE = 24;
 
-export default async function Home() {
-  const { data: prompts, error } = await supabase
+export default async function Home({ searchParams }) {
+  const params = await searchParams;
+  const page = Math.max(1, Number.parseInt(params?.page || '1', 10) || 1);
+  const filter = params?.filter || 'All';
+  const style = params?.style || '';
+  const promptType = params?.type || '';
+  const sort = params?.sort || 'Featured';
+  const search = (params?.q || '').trim().replace(/[,()%]/g, ' ').slice(0, 100);
+  const from = (page - 1) * PAGE_SIZE;
+
+  let query = supabase
     .from('prompts')
-    .select('*')
-    .order('created_at', { ascending: false })
-    .limit(500); // Fetch max 500 for the client grid
+    .select('*', { count: 'exact' })
+    .eq('status', 'published');
 
-  if (error) {
-    console.error("Error fetching prompts:", error);
+  if (!['All', 'Favorites', 'History'].includes(filter)) query = query.eq('model', filter);
+  if (style) query = query.eq('style', style);
+  if (promptType) query = query.eq('prompt_type', promptType);
+  if (search) {
+    query = query.or(`title.ilike.%${search}%,prompt_text.ilike.%${search}%,creator_name.ilike.%${search}%,model.ilike.%${search}%`);
   }
 
-  const placeholders = [
-    { id: 1, image_url: 'https://placehold.co/600x800/eeeeee/999999?text=Placeholder+1', prompt_text: 'A high fashion editorial, stark lighting, black and white.', model: 'Midjourney' },
-    { id: 2, image_url: 'https://placehold.co/600x600/eeeeee/999999?text=Placeholder+2', prompt_text: 'Cinematic lighting, brutalist architecture.', model: 'ChatGPT' },
-    { id: 3, image_url: 'https://placehold.co/400x600/eeeeee/999999?text=Placeholder+3', prompt_text: 'Cyberpunk street, rain, neon reflections.', model: 'Nanobanana' },
-    { id: 4, image_url: 'https://placehold.co/600x400/eeeeee/999999?text=Placeholder+4', prompt_text: 'Minimalist product photography, soft shadows.', model: 'Seedance' },
-  ];
+  query = sort === 'Newest'
+    ? query.order('created_at', { ascending: false })
+    : query.order('featured', { ascending: false }).order('created_at', { ascending: false });
 
-  const initialPrompts = (prompts && prompts.length > 0) ? prompts : placeholders;
+  const { data: prompts, error, count } = await query.range(from, from + PAGE_SIZE - 1);
+  const totalPages = Math.max(1, Math.ceil((count || 0) / PAGE_SIZE));
 
   return (
     <>
-      <div className="desktop-only-filter">
-        <TopFilterBar />
-      </div>
-      <PromptGrid initialPrompts={initialPrompts} />
+      <div className="desktop-only-filter"><TopFilterBar /></div>
+      {error ? (
+        <div className="state-panel" role="alert">
+          <h2>We could not load the library.</h2>
+          <p>Please refresh in a moment.</p>
+        </div>
+      ) : (
+        <>
+          <PromptGrid initialPrompts={prompts || []} />
+          {!['Favorites', 'History'].includes(filter) && (
+            <Pagination currentPage={page} totalPages={totalPages} />
+          )}
+        </>
+      )}
     </>
   );
 }

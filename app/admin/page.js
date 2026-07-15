@@ -1,180 +1,101 @@
 'use client';
-import { useState, useEffect } from 'react';
-import { supabase } from '@/utils/supabase';
+
+import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { supabase } from '@/utils/supabase';
+import PromptSubmissionForm from '../components/PromptSubmissionForm';
 
 export default function AdminDashboard() {
   const router = useRouter();
   const [user, setUser] = useState(null);
+  const [pending, setPending] = useState([]);
+  const [published, setPublished] = useState([]);
+  const [applicants, setApplicants] = useState([]);
+  const [contributors, setContributors] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [uploading, setUploading] = useState(false);
-  
-  // Form State
-  const [promptText, setPromptText] = useState('');
-  const [model, setModel] = useState('NanoBanana');
-  const [file, setFile] = useState(null);
   const [message, setMessage] = useState('');
 
-  useEffect(() => {
-    const checkUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      const currentUser = session?.user;
-      const adminUuids = (process.env.NEXT_PUBLIC_ADMIN_UUID || '0fa18228-1941-4fbd-a35a-53106eec0137,be3e4bfc-9008-4c03-a11b-8eef831df503').split(',');
-      
-      if (!currentUser || !adminUuids.includes(currentUser.id)) {
-        router.push('/');
-      } else {
-        setUser(currentUser);
-        setLoading(false);
-      }
-    };
-    checkUser();
-  }, [router]);
-
-  const handleUpload = async (e) => {
-    e.preventDefault();
-    if (!file || !promptText) {
-      setMessage('Please select a file and enter a prompt.');
+  const loadDashboard = useCallback(async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.user) {
+      router.replace('/login?next=/admin');
       return;
     }
-    
-    setUploading(true);
-    setMessage('Uploading image...');
-
-    try {
-      // 1. Upload Image to Storage Bucket
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Math.random()}.${fileExt}`;
-      const filePath = `${user.id}/${fileName}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from('prompt-images')
-        .upload(filePath, file);
-
-      if (uploadError) throw uploadError;
-
-      // 2. Get Public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from('prompt-images')
-        .getPublicUrl(filePath);
-
-      setMessage('Saving to database...');
-
-      // 3. Insert into Prompts Table
-      const { error: dbError } = await supabase
-        .from('prompts')
-        .insert([
-          {
-            prompt_text: promptText,
-            model: model,
-            image_url: publicUrl,
-            user_id: user.id
-          }
-        ]);
-
-      if (dbError) throw dbError;
-
-      setMessage('Success! Prompt published to feed.');
-      setPromptText('');
-      setFile(null);
-      document.getElementById('file-upload').value = '';
-      
-    } catch (error) {
-      setMessage(`Error: ${error.message}`);
-    } finally {
-      setUploading(false);
+    const { data: profile } = await supabase.from('profiles').select('role').eq('id', session.user.id).single();
+    if (profile?.role !== 'admin') {
+      router.replace('/');
+      return;
     }
+    setUser(session.user);
+    const [pendingResult, publishedResult, applicantsResult, contributorsResult] = await Promise.all([
+      supabase.from('prompts').select('*').eq('status', 'pending').order('created_at'),
+      supabase.from('prompts').select('*').eq('status', 'published').order('created_at', { ascending: false }).limit(50),
+      supabase.from('profiles').select('*').eq('role', 'viewer').order('created_at'),
+      supabase.from('profiles').select('*').eq('role', 'contributor').order('display_name'),
+    ]);
+    setPending(pendingResult.data || []);
+    setPublished(publishedResult.data || []);
+    setApplicants(applicantsResult.data || []);
+    setContributors(contributorsResult.data || []);
+    setLoading(false);
+  }, [router]);
+
+  useEffect(() => { loadDashboard(); }, [loadDashboard]);
+
+  const reviewPrompt = async (id, status) => {
+    const rejectionReason = status === 'rejected' ? window.prompt('Reason for rejection:') : null;
+    if (status === 'rejected' && !rejectionReason?.trim()) return;
+    const { error } = await supabase.from('prompts').update({ status, rejection_reason: rejectionReason || null }).eq('id', id);
+    setMessage(error ? `Error: ${error.message}` : `Submission ${status}.`);
+    if (!error) loadDashboard();
   };
 
-  if (loading) return <div style={{ color: 'white', padding: '50px', textAlign: 'center' }}>Loading...</div>;
-  if (!user) return <div style={{ color: 'white', padding: '50px', textAlign: 'center' }}>Access Denied. You must be logged in.</div>;
+  const approveContributor = async (id) => {
+    const { error } = await supabase.from('profiles').update({ role: 'contributor' }).eq('id', id);
+    setMessage(error ? `Error: ${error.message}` : 'Contributor approved.');
+    if (!error) loadDashboard();
+  };
+
+  const revokeContributor = async (id) => {
+    if (!window.confirm('Remove contributor upload access?')) return;
+    const { error } = await supabase.from('profiles').update({ role: 'viewer' }).eq('id', id);
+    setMessage(error ? `Error: ${error.message}` : 'Contributor access removed.');
+    if (!error) loadDashboard();
+  };
+
+  const toggleFeatured = async (item) => {
+    const { error } = await supabase.from('prompts').update({ featured: !item.featured }).eq('id', item.id);
+    setMessage(error ? `Error: ${error.message}` : 'Featured status updated.');
+    if (!error) loadDashboard();
+  };
+
+  const deletePrompt = async (item) => {
+    if (!window.confirm(`Delete “${item.title}” permanently?`)) return;
+    const marker = '/prompt-images/';
+    const imagePath = item.image_path || (item.image_url?.includes(marker) ? decodeURIComponent(item.image_url.split(marker)[1]) : null);
+    const { error } = await supabase.from('prompts').delete().eq('id', item.id);
+    if (!error && imagePath) await supabase.storage.from('prompt-images').remove([imagePath]);
+    setMessage(error ? `Error: ${error.message}` : 'Prompt deleted.');
+    if (!error) loadDashboard();
+  };
+
+  if (loading) return <div className="state-panel">Verifying administrator access...</div>;
 
   return (
-    <div style={{ padding: 'var(--space-lg)', maxWidth: '600px', margin: '0 auto', minHeight: '100vh' }}>
+    <div className="dashboard-shell">
+      <div className="dashboard-heading"><div><p className="eyebrow">Administration</p><h1>Prompt Library control room</h1><p>Publish directly, review submissions, and approve contributors.</p></div><button className="secondary-button" onClick={() => supabase.auth.signOut().then(() => router.push('/'))}>Sign out</button></div>
+      {message && <div className={message.startsWith('Error') ? 'form-error' : 'form-message'}>{message}</div>}
 
-      <div className="glass" style={{ padding: 'var(--space-lg)', borderRadius: '16px' }}>
-        <h1 style={{ fontSize: '2rem', marginBottom: 'var(--space-sm)' }}>Admin Dashboard</h1>
-        <p style={{ color: 'var(--text-secondary)', marginBottom: 'var(--space-lg)' }}>Upload new AI prompts to the global feed.</p>
+      <section className="dashboard-card"><h2>Publish a prompt</h2><PromptSubmissionForm user={user} publishDirect onComplete={loadDashboard} /></section>
 
-        <form onSubmit={handleUpload} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-md)' }}>
-          
-          <div>
-            <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-secondary)' }}>Select Image</label>
-            <input 
-              id="file-upload"
-              type="file" 
-              accept="image/*"
-              onChange={(e) => setFile(e.target.files[0])}
-              style={{ color: 'var(--text-primary)' }}
-            />
-          </div>
+      <section className="dashboard-card"><h2>Contributor applications</h2>{applicants.length === 0 ? <p>No applications waiting.</p> : <div className="management-list">{applicants.map((item) => <article key={item.id}><div><strong>{item.display_name || item.email}</strong><p>{item.email}</p></div><button className="primary-button small" onClick={() => approveContributor(item.id)}>Approve</button></article>)}</div>}</section>
 
-          <div>
-            <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-secondary)' }}>AI Model</label>
-            <select 
-              value={model}
-              onChange={(e) => setModel(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '12px 16px',
-                backgroundColor: 'var(--background)',
-                border: '1px solid var(--border)',
-                borderRadius: '8px',
-                color: 'var(--text-primary)',
-                fontSize: '1rem'
-              }}
-            >
-              <option value="NanoBanana">NanoBanana</option>
-              <option value="ChatGPT / DALL-E">ChatGPT / DALL-E</option>
-              <option value="Midjourney v6">Midjourney v6</option>
-              <option value="Stable Diffusion">Stable Diffusion</option>
-            </select>
-          </div>
+      <section className="dashboard-card"><h2>Approved contributors</h2>{contributors.length === 0 ? <p>No contributors approved yet.</p> : <div className="management-list">{contributors.map((item) => <article key={item.id}><div><strong>{item.display_name || item.email}</strong><p>{item.email}</p></div><button className="danger-button" onClick={() => revokeContributor(item.id)}>Remove access</button></article>)}</div>}</section>
 
-          <div>
-            <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-secondary)' }}>Prompt Text (Hidden on Feed)</label>
-            <textarea 
-              value={promptText}
-              onChange={(e) => setPromptText(e.target.value)}
-              rows={4}
-              style={{
-                width: '100%',
-                padding: '12px 16px',
-                backgroundColor: 'var(--background)',
-                border: '1px solid var(--border)',
-                borderRadius: '8px',
-                color: 'var(--text-primary)',
-                fontSize: '1rem',
-                resize: 'vertical'
-              }}
-            />
-          </div>
+      <section className="dashboard-card"><h2>Pending submissions</h2>{pending.length === 0 ? <p>No submissions waiting.</p> : <div className="management-list">{pending.map((item) => <article key={item.id}><div><strong>{item.title}</strong><p>{item.model} · {item.creator_name || 'Uncredited'}</p></div><div className="row-actions"><button className="primary-button small" onClick={() => reviewPrompt(item.id, 'published')}>Publish</button><button className="danger-button" onClick={() => reviewPrompt(item.id, 'rejected')}>Reject</button></div></article>)}</div>}</section>
 
-          {message && (
-            <div style={{ color: message.includes('Success') ? '#10B981' : 'var(--accent)', fontWeight: 'bold' }}>
-              {message}
-            </div>
-          )}
-
-          <button 
-            type="submit" 
-            disabled={uploading}
-            style={{
-              padding: '16px',
-              backgroundColor: 'var(--text-primary)',
-              color: 'var(--background)',
-              fontWeight: 'bold',
-              borderRadius: '10px',
-              fontSize: '1rem',
-              textTransform: 'uppercase',
-              opacity: uploading ? 0.7 : 1,
-              transition: 'all 0.2s ease',
-              boxShadow: '0 4px 16px rgba(0,0,0,0.1)'
-            }}>
-            {uploading ? 'Publishing...' : 'Publish to Feed'}
-          </button>
-        </form>
-      </div>
+      <section className="dashboard-card"><h2>Published prompts</h2><div className="management-list">{published.map((item) => <article key={item.id}><div><strong>{item.title}</strong><p>{item.model} · {item.featured ? 'Featured' : 'Standard'}</p></div><div className="row-actions"><Link className="secondary-button small" href={`/admin/edit/${item.id}`}>Edit</Link><button className="secondary-button small" onClick={() => toggleFeatured(item)}>{item.featured ? 'Unfeature' : 'Feature'}</button><button className="danger-button" onClick={() => deletePrompt(item)}>Delete</button></div></article>)}</div></section>
     </div>
   );
 }

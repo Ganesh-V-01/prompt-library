@@ -5,12 +5,18 @@ export default function CookieBanner() {
   const [show, setShow] = useState(false);
 
   useEffect(() => {
-    const consent = localStorage.getItem('cookie-consent');
+    const consent = localStorage.getItem('analytics-consent');
     if (!consent) setShow(true);
   }, []);
 
   const accept = () => {
-    localStorage.setItem('cookie-consent', 'true');
+    localStorage.setItem('analytics-consent', 'accepted');
+    window.dispatchEvent(new Event('analyticsConsentUpdated'));
+    setShow(false);
+  };
+
+  const reject = () => {
+    localStorage.setItem('analytics-consent', 'rejected');
     setShow(false);
   };
 
@@ -37,10 +43,15 @@ export default function CookieBanner() {
         We use essential cookies to make our site work. With your consent, we may also use non-essential cookies to improve user experience and analyze website traffic.
       </p>
       <div style={{ display: 'flex', gap: '12px', alignSelf: 'flex-end' }}>
+        <button
+          onClick={reject}
+          style={{ padding: '8px 16px', border: '1px solid var(--border)', borderRadius: '6px', fontWeight: 600, fontSize: '0.85rem' }}>
+          Reject Analytics
+        </button>
         <button 
           onClick={accept}
           style={{ padding: '8px 16px', backgroundColor: 'var(--text-primary)', color: 'var(--background)', borderRadius: '6px', fontWeight: 600, fontSize: '0.85rem' }}>
-          Accept All
+          Accept Analytics
         </button>
       </div>
     </div>

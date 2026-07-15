@@ -1,67 +1,60 @@
 'use client';
+
 import { useEffect, useState, Suspense } from 'react';
 import PromptCard from './PromptCard';
 import { useSearchParams } from 'next/navigation';
 
+function safelyRead(key) {
+  try {
+    return JSON.parse(localStorage.getItem(key) || '[]');
+  } catch {
+    return [];
+  }
+}
+
 function GridContent({ initialPrompts }) {
   const searchParams = useSearchParams();
   const filter = searchParams.get('filter') || 'All';
-  const query = searchParams.get('q') || '';
-  const styleQuery = searchParams.get('style') || '';
-  const [favorites, setFavorites] = useState([]);
-  const [mounted, setMounted] = useState(false);
-  
+  const [localPrompts, setLocalPrompts] = useState(null);
+
   useEffect(() => {
-    setMounted(true);
-    const fetchFavs = () => {
-      const saved = localStorage.getItem('favorites');
-      if (saved) setFavorites(JSON.parse(saved));
+    const refresh = () => {
+      if (filter === 'Favorites') setLocalPrompts(safelyRead('favorite-prompts'));
+      else if (filter === 'History') setLocalPrompts(safelyRead('prompt-history'));
+      else setLocalPrompts(null);
     };
-    fetchFavs();
-    window.addEventListener('favoritesUpdated', fetchFavs);
-    return () => window.removeEventListener('favoritesUpdated', fetchFavs);
-  }, []);
+    refresh();
+    window.addEventListener('favoritesUpdated', refresh);
+    window.addEventListener('historyUpdated', refresh);
+    return () => {
+      window.removeEventListener('favoritesUpdated', refresh);
+      window.removeEventListener('historyUpdated', refresh);
+    };
+  }, [filter]);
 
-  // Avoid hydration mismatch by waiting for mount
-  if (!mounted) return <div className="masonry-grid"></div>;
+  const displayPrompts = localPrompts ?? initialPrompts;
 
-  let displayPrompts = initialPrompts;
-
-  if (filter === 'Favorites') {
-    displayPrompts = displayPrompts.filter(p => favorites.includes(p.id));
-  } else if (filter !== 'All' && filter !== 'History') {
-    displayPrompts = displayPrompts.filter(p => p.model === filter);
-  }
-
-  if (query) {
-    displayPrompts = displayPrompts.filter(p => 
-      p.prompt_text.toLowerCase().includes(query.toLowerCase()) || 
-      p.model.toLowerCase().includes(query.toLowerCase())
-    );
-  }
-
-  if (styleQuery) {
-    displayPrompts = displayPrompts.filter(p => 
-      p.prompt_text.toLowerCase().includes(styleQuery.toLowerCase()) || 
-      (p.title && p.title.toLowerCase().includes(styleQuery.toLowerCase()))
+  if (displayPrompts.length === 0) {
+    return (
+      <div className="state-panel">
+        <h2>{filter === 'Favorites' ? 'No favourites yet' : filter === 'History' ? 'No viewing history yet' : 'No prompts found'}</h2>
+        <p>{filter === 'Favorites' ? 'Use the heart button to save prompts on this device.' : filter === 'History' ? 'Open a prompt and it will appear here.' : 'Try another search or filter.'}</p>
+      </div>
     );
   }
 
   return (
     <div className="masonry-grid">
-      {displayPrompts.length === 0 && filter === 'Favorites' && (
-        <div style={{ width: '100%', padding: '40px', textAlign: 'center', color: 'var(--text-secondary)' }}>
-          No favorites yet. Heart some prompts!
-        </div>
-      )}
-      {displayPrompts.map(prompt => (
-        <PromptCard 
-          key={prompt.id} 
-          id={prompt.id} 
-          image={prompt.image_url} 
-          prompt={prompt.prompt_text} 
-          model={prompt.model} 
-          title={prompt.title || 'Untitled Prompt'} 
+      {displayPrompts.map((prompt) => (
+        <PromptCard
+          key={prompt.id}
+          id={prompt.id}
+          image={prompt.image_url}
+          prompt={prompt.prompt_text}
+          model={prompt.model}
+          title={prompt.title || 'Untitled Prompt'}
+          style={prompt.style}
+          promptType={prompt.prompt_type}
         />
       ))}
     </div>
@@ -69,9 +62,5 @@ function GridContent({ initialPrompts }) {
 }
 
 export default function PromptGrid({ initialPrompts }) {
-  return (
-    <Suspense fallback={<div className="masonry-grid"></div>}>
-      <GridContent initialPrompts={initialPrompts} />
-    </Suspense>
-  );
+  return <Suspense fallback={<div className="state-panel">Loading prompts...</div>}><GridContent initialPrompts={initialPrompts} /></Suspense>;
 }

@@ -1,96 +1,68 @@
-import { supabase } from '@/utils/supabase';
-import { Copy, Heart, Check, ArrowLeft } from 'lucide-react';
+import { notFound } from 'next/navigation';
+import { ArrowLeft, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { supabase } from '@/utils/supabase';
 import PromptCard from '../../components/PromptCard';
+import PromptDetailActions from './PromptDetailActions';
 
-// This is a simple client component wrapper for the copy button logic
-// Since the main page is a server component, we inline the interactivity.
-import CopyButton from './CopyButton'; 
+export const revalidate = 60;
+
+export async function generateMetadata({ params }) {
+  const { id } = await params;
+  const { data } = await supabase.from('prompts').select('title, prompt_text, image_url').eq('id', id).eq('status', 'published').single();
+  if (!data) return { title: 'Prompt not found' };
+  return {
+    title: data.title,
+    description: data.prompt_text.slice(0, 155),
+    openGraph: { title: data.title, description: data.prompt_text.slice(0, 155), images: [data.image_url] },
+  };
+}
 
 export default async function PromptDetail({ params }) {
-  const resolvedParams = await params;
-  const { id } = resolvedParams;
-  
-  // Try fetching the prompt
-  const { data: prompt, error } = await supabase
+  const { id } = await params;
+  const { data: item, error } = await supabase
     .from('prompts')
     .select('*')
     .eq('id', id)
+    .eq('status', 'published')
     .single();
 
-  // If we don't have real DB data, use placeholder based on ID
-  const item = prompt || {
-    id: id,
-    image_url: 'https://placehold.co/600x800/eeeeee/999999?text=Placeholder',
-    prompt_text: 'A high fashion editorial, stark lighting, black and white. Captured on 35mm film.',
-    model: 'Midjourney',
-    title: `Prompt Entry #${id}`
-  };
+  if (error || !item) notFound();
 
-  const similarPlaceholders = [
-    { id: 10, image_url: 'https://placehold.co/600x400/eeeeee/999999?text=Similar+1', prompt_text: 'Cinematic lighting, brutalist architecture.', model: 'ChatGPT' },
-    { id: 11, image_url: 'https://placehold.co/400x600/eeeeee/999999?text=Similar+2', prompt_text: 'Cyberpunk street, rain, neon reflections.', model: 'Nanobanana' },
-    { id: 12, image_url: 'https://placehold.co/600x600/eeeeee/999999?text=Similar+3', prompt_text: 'Minimalist product photography, soft shadows.', model: 'Seedance' },
-  ];
+  const { data: similar } = await supabase
+    .from('prompts')
+    .select('*')
+    .eq('status', 'published')
+    .eq('model', item.model)
+    .neq('id', item.id)
+    .order('featured', { ascending: false })
+    .order('created_at', { ascending: false })
+    .limit(6);
 
   return (
     <>
-      <Link href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginBottom: '32px', color: 'var(--text-secondary)', fontWeight: 500 }}>
-        <ArrowLeft size={16} /> Back to Library
-      </Link>
-
-      <div className="detail-container" style={{ display: 'flex', height: 'calc(100vh - 120px)', minHeight: '600px', gap: '40px', marginBottom: '64px' }}>
-        
-        {/* Left Side: Image (Strict bounds, object-fit contain) */}
-        <div className="detail-image-wrapper" style={{ position: 'relative', flex: '1 1 60%', height: '100%', background: 'var(--surface-hover)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', padding: '16px', border: '1px solid var(--border)' }}>
-          <Image 
-            src={item.image_url} 
-            alt={item.title} 
-            fill
-            style={{ objectFit: 'contain' }} 
-            priority
-          />
+      <Link href="/" className="back-link"><ArrowLeft size={16} /> Back to library</Link>
+      <article className="detail-container">
+        <div className="detail-image-wrapper"><Image src={item.image_url} alt={item.title} fill sizes="(max-width: 768px) 100vw, 60vw" priority style={{ objectFit: 'contain' }} /></div>
+        <div className="detail-right">
+          <div className="detail-badges"><span>{item.model}</span><span>{item.prompt_type || 'image'} prompt</span>{item.style && <span>{item.style}</span>}</div>
+          <h1 className="detail-title">{item.title}</h1>
+          <dl className="prompt-meta">
+            {item.creator_name && <><dt>Creator</dt><dd>{item.creator_name}</dd></>}
+            {item.aspect_ratio && <><dt>Aspect ratio</dt><dd>{item.aspect_ratio}</dd></>}
+          </dl>
+          <h2>Prompt</h2>
+          <div className="detail-prompt">{item.prompt_text}</div>
+          {item.negative_prompt && <><h2>Negative prompt</h2><div className="detail-prompt secondary">{item.negative_prompt}</div></>}
+          {item.notes && <><h2>Usage notes</h2><p className="detail-notes">{item.notes}</p></>}
+          {item.source_url && <a href={item.source_url} target="_blank" rel="noopener noreferrer" className="source-link">Original source <ExternalLink size={15} /></a>}
+          <PromptDetailActions item={item} />
+          <Link href={`/report?prompt=${item.id}`} className="report-link">Report this content</Link>
         </div>
+      </article>
 
-        {/* Right Side: Prompt Details */}
-        <div className="detail-right" style={{ flex: '1 1 40%', display: 'flex', flexDirection: 'column', overflowY: 'auto', paddingRight: '16px' }}>
-          <div style={{ alignSelf: 'flex-start', padding: '4px 8px', background: 'var(--text-primary)', color: 'var(--background)', fontSize: '0.75rem', fontWeight: 700, borderRadius: '4px', marginBottom: '16px', textTransform: 'uppercase' }}>
-            {item.model}
-          </div>
-          
-          <h1 className="detail-title">{item.title || `Entry #${id}`}</h1>
-          
-          <div className="detail-prompt" style={{ flexGrow: 1 }}>
-            {item.prompt_text}
-          </div>
-          
-          <div className="detail-actions" style={{ marginTop: 'auto', paddingTop: '24px' }}>
-            <CopyButton textToCopy={item.prompt_text} />
-            <button className="card-btn btn-heart" style={{ border: '1px solid var(--border)', background: 'var(--surface)' }}>
-              <Heart size={18} />
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Similar Images Section */}
-      <h3 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '24px', borderBottom: '1px solid var(--border)', paddingBottom: '16px' }}>
-        Similar Entries
-      </h3>
-      
-      <div className="masonry-grid">
-        {similarPlaceholders.map((p) => (
-          <PromptCard 
-            key={p.id}
-            id={p.id}
-            image={p.image_url}
-            prompt={p.prompt_text}
-            model={p.model}
-            title={`Entry #${p.id}`}
-          />
-        ))}
-      </div>
+      {similar?.length > 0 && <section className="similar-section"><h2>Similar prompts</h2><div className="masonry-grid">{similar.map((prompt) => <PromptCard key={prompt.id} id={prompt.id} image={prompt.image_url} prompt={prompt.prompt_text} model={prompt.model} title={prompt.title} style={prompt.style} promptType={prompt.prompt_type} />)}</div></section>}
     </>
   );
 }

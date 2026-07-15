@@ -6,15 +6,9 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'placehold.co',
-      },
-      {
-        protocol: 'https',
         hostname: 'qbzygcxutbnrzyzkchxr.supabase.co',
       }
     ],
-    // To allow placehold.co SVG placeholders
-    dangerouslyAllowSVG: true,
   },
 };
 

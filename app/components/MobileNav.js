@@ -1,6 +1,6 @@
 'use client';
 import { useState, Suspense } from 'react';
-import { Search, MoreVertical, BookOpen, X, LogIn, Clock, Heart } from 'lucide-react';
+import { Search, MoreVertical, BookOpen, X, Upload, Clock, Heart } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
@@ -50,7 +50,7 @@ function MobileNavContent() {
                 <>
                   <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 90 }} onClick={() => setIsMenuOpen(false)} />
                   <div style={{ position: 'absolute', top: '100%', right: 0, marginTop: '16px', background: 'var(--background)', border: '1px solid var(--border)', borderRadius: '8px', boxShadow: '0 10px 25px rgba(0,0,0,0.15)', zIndex: 100, display: 'flex', flexDirection: 'column', width: '200px', overflow: 'hidden' }}>
-                    <Link href="/login" onClick={() => setIsMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '14px 16px', fontSize: '0.95rem', color: 'var(--text-primary)', borderBottom: '1px solid var(--border)', fontWeight: 500, textDecoration: 'none' }}><LogIn size={18} /> Sign In</Link>
+                    <Link href="/contribute" onClick={() => setIsMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '14px 16px', fontSize: '0.95rem', color: 'var(--text-primary)', borderBottom: '1px solid var(--border)', fontWeight: 500, textDecoration: 'none' }}><Upload size={18} /> Contribute</Link>
                     <Link href="/?filter=History" onClick={() => setIsMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '14px 16px', fontSize: '0.95rem', color: 'var(--text-primary)', borderBottom: '1px solid var(--border)', fontWeight: 500, textDecoration: 'none' }}><Clock size={18} /> History</Link>
                     <Link href="/?filter=Favorites" onClick={() => setIsMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '14px 16px', fontSize: '0.95rem', color: 'var(--text-primary)', fontWeight: 500, textDecoration: 'none' }}><Heart size={18} /> Favorites</Link>
                   </div>

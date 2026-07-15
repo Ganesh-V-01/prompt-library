@@ -13,8 +13,14 @@ const jetbrains = JetBrains_Mono({ subsets: ['latin'], variable: '--font-jetbrai
 
 export async function generateMetadata() {
   return {
-    title: 'Prompt Library | Clean & Minimal',
-    description: 'Discover and copy high-quality AI prompts.',
+    title: { default: 'Prompt Library', template: '%s | Prompt Library' },
+    description: 'Discover, copy, and reuse curated prompts for leading AI image and video tools.',
+    keywords: ['AI prompts', 'image prompts', 'video prompts', 'prompt library'],
+    openGraph: {
+      title: 'Prompt Library',
+      description: 'Curated prompts for AI image and video creation.',
+      type: 'website',
+    },
     other: {
       ...Sentry.getTraceData()
     }
@@ -22,6 +28,7 @@ export async function generateMetadata() {
 }
 
 export default function RootLayout({ children }) {
+  const contactEmail = process.env.NEXT_PUBLIC_CONTACT_EMAIL;
   return (
     <html lang="en" className={`${playfair.variable} ${dmSans.variable} ${jetbrains.variable}`}>
       <body>
@@ -36,7 +43,9 @@ export default function RootLayout({ children }) {
               <footer style={{ marginTop: 'auto', paddingTop: '40px', paddingBottom: '20px', borderTop: '1px solid var(--border)', textAlign: 'center', fontSize: '0.85rem', color: 'var(--text-secondary)', display: 'flex', justifyContent: 'center', gap: '24px' }}>
                 <Link href="/privacy" style={{ textDecoration: 'underline' }}>Privacy Policy</Link>
                 <Link href="/terms" style={{ textDecoration: 'underline' }}>Terms of Service</Link>
-                <a href="mailto:support@promptlibrary.com" style={{ textDecoration: 'underline' }}>Contact Us</a>
+                <Link href="/contribute" style={{ textDecoration: 'underline' }}>Contribute</Link>
+                <Link href="/report" style={{ textDecoration: 'underline' }}>Report Content</Link>
+                {contactEmail && <a href={`mailto:${contactEmail}`} style={{ textDecoration: 'underline' }}>Contact</a>}
               </footer>
             </main>
             <CookieBanner />

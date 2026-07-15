@@ -43,7 +43,14 @@ export default function ContributePage() {
     event.preventDefault();
     setMessage('');
     if (authMode === 'signup') {
-      const { error } = await supabase.auth.signUp({ email, password, options: { data: { display_name: displayName.trim() } } });
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { display_name: displayName.trim() },
+          emailRedirectTo: `${window.location.origin}/contribute`,
+        },
+      });
       setMessage(error ? `Error: ${error.message}` : 'Account created. Check your email, then wait for administrator approval.');
     } else {
       const { error } = await supabase.auth.signInWithPassword({ email, password });

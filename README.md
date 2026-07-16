@@ -27,7 +27,7 @@ npm run build
 npm audit --omit=dev
 ```
 
-Never commit `.env` files, service-role keys, Sentry authentication tokens, or Upstash tokens.
+Never commit `.env` files, service-role keys, or Sentry authentication tokens.
 
 ## Deployment
 

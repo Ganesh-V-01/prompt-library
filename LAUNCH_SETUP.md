@@ -1,6 +1,6 @@
 # Prompt Library Launch Setup
 
-Complete these steps only after the `codex/launch-ready-mvp` branch is available on GitHub.
+Complete these steps only after the `agent/launch-ready-mvp` branch is available on GitHub.
 
 ## 1. Make a lightweight content backup
 
@@ -37,12 +37,10 @@ Keep email confirmation enabled for contributor registrations.
 
 ## 5. Vercel environment variables
 
-Keep all existing Supabase, Upstash, Sentry, and PostHog values. Add or verify these names:
+Keep all existing Supabase, Sentry, and PostHog values. Add or verify these names:
 
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-- `UPSTASH_REDIS_REST_URL`
-- `UPSTASH_REDIS_REST_TOKEN`
 - `SENTRY_AUTH_TOKEN`
 - `NEXT_PUBLIC_POSTHOG_KEY`
 - `NEXT_PUBLIC_POSTHOG_HOST`

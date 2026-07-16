@@ -13,7 +13,7 @@ export default function Error({ error, reset }) {
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '60vh', textAlign: 'center' }}>
       <h2 style={{ fontSize: '2rem', marginBottom: '16px' }}>Something went wrong!</h2>
       <p style={{ color: 'var(--text-secondary)', marginBottom: '24px' }}>
-        We couldn't load this part of the page. The issue has been reported.
+        We could not load this part of the page. The issue has been reported.
       </p>
       <button
         onClick={() => reset()}

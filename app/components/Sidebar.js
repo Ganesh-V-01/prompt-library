@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Home, Search, Clock, Heart, BookOpen, User } from 'lucide-react';
+import { Home, Search, Clock, Heart, BookOpen, Upload } from 'lucide-react';
 
 export default function Sidebar() {
   const router = useRouter();
@@ -42,8 +42,8 @@ export default function Sidebar() {
       </nav>
 
       <div style={{ marginTop: 'auto', paddingTop: '24px', borderTop: '1px solid var(--border)' }}>
-        <Link href="/login" className="nav-item" style={{ color: 'var(--text-primary)', fontWeight: 'bold', display: 'flex', alignItems: 'center', background: 'var(--surface-hover)' }}>
-          <User className="icon" style={{ width: '18px', height: '18px' }} /> Sign In
+        <Link href="/contribute" className="nav-item" style={{ color: 'var(--text-primary)', fontWeight: 'bold', display: 'flex', alignItems: 'center', background: 'var(--surface-hover)' }}>
+          <Upload className="icon" style={{ width: '18px', height: '18px' }} /> Contribute
         </Link>
       </div>
 

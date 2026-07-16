@@ -40,7 +40,7 @@ export default function ResetPasswordPage() {
           Reset Password
         </h1>
         <p style={{ textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '32px' }}>
-          Enter your email and we'll send you a link to reset your password.
+          Enter your email and we will send you a link to reset your password.
         </p>
 
         {error && <div style={{ color: '#EF4444', textAlign: 'center', marginBottom: '16px', fontSize: '0.9rem' }}>{error}</div>}

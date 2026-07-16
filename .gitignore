@@ -25,11 +25,10 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# local env files
-.env*.local
-.env.local
+# environment files (keep the documented template)
 .env
-.env.sentry-build-plugin
+.env.*
+!.env.example
 
 # vercel
 .vercel

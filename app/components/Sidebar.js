@@ -20,7 +20,7 @@ export default function Sidebar() {
       <div className="sidebar-header" style={{ marginBottom: '32px' }}>
         <Link href="/" className="logo" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none', color: 'var(--text-primary)' }}>
           <BookOpen style={{ marginRight: '10px' }} size={24} /> 
-          <span style={{ fontSize: '1.25rem', fontWeight: 'bold' }}>Prompt Library</span>
+          <span style={{ fontSize: '1.25rem', fontWeight: 'bold' }}>MedhaOne</span>
         </Link>
       </div>
 

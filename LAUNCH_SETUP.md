@@ -1,4 +1,4 @@
-# Prompt Library Launch Setup
+# MedhaOne Launch Setup
 
 Complete these steps only after the `agent/launch-ready-mvp` branch is available on GitHub.
 
@@ -29,8 +29,8 @@ Do not upload new prompts from the old admin page between this migration and the
 
 In Supabase → Authentication → URL Configuration:
 
-- Site URL: `https://prompt-library-vert.vercel.app`
-- Add redirect URL: `https://prompt-library-vert.vercel.app/update-password`
+- Site URL: `https://medhaone.tech`
+- Add redirect URL: `https://medhaone.tech/update-password`
 - Add the equivalent Vercel preview URL only while testing the branch.
 
 Keep email confirmation enabled for contributor registrations.
@@ -44,7 +44,7 @@ Keep all existing Supabase, Sentry, and PostHog values. Add or verify these name
 - `SENTRY_AUTH_TOKEN`
 - `NEXT_PUBLIC_POSTHOG_KEY`
 - `NEXT_PUBLIC_POSTHOG_HOST`
-- `NEXT_PUBLIC_SITE_URL=https://prompt-library-vert.vercel.app`
+- `NEXT_PUBLIC_SITE_URL=https://medhaone.tech`
 - `NEXT_PUBLIC_CONTACT_EMAIL` (the real public support/removal email)
 
 `NEXT_PUBLIC_ADMIN_UUID` is no longer used by the new application. Database roles and RLS are the authority.

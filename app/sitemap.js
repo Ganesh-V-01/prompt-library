@@ -1,7 +1,7 @@
 import { supabase } from '@/utils/supabase';
 
 export default async function sitemap() {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://prompt-library-vert.vercel.app';
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://medhaone.tech';
   const staticEntries = ['', '/privacy', '/terms', '/report'].map((path) => ({
     url: `${baseUrl}${path}`,
     lastModified: new Date(),

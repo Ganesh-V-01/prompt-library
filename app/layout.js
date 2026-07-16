@@ -13,13 +13,19 @@ const jetbrains = JetBrains_Mono({ subsets: ['latin'], variable: '--font-jetbrai
 
 export async function generateMetadata() {
   return {
-    title: { default: 'Prompt Library', template: '%s | Prompt Library' },
-    description: 'Discover, copy, and reuse curated prompts for leading AI image and video tools.',
-    keywords: ['AI prompts', 'image prompts', 'video prompts', 'prompt library'],
+    metadataBase: new URL('https://medhaone.tech'),
+    title: { default: 'MedhaOne', template: '%s | MedhaOne' },
+    description: 'Discover, share, and create with reusable AI prompts and workflows.',
+    keywords: ['AI prompts', 'image prompts', 'video prompts', 'MedhaOne'],
     openGraph: {
-      title: 'Prompt Library',
-      description: 'Curated prompts for AI image and video creation.',
+      title: 'MedhaOne',
+      description: 'Discover, share, and create with reusable AI prompts and workflows.',
       type: 'website',
+      siteName: 'MedhaOne',
+      url: '/',
+    },
+    alternates: {
+      canonical: '/',
     },
     other: {
       ...Sentry.getTraceData()

@@ -1,6 +1,6 @@
-# PromptGram is LIVE! 🚀
+# MedhaOne is LIVE! 🚀
 
-Congratulations! We have successfully built, integrated, and deployed your entire AI Prompt Library to the live internet.
+Congratulations! We have successfully built, integrated, and deployed MedhaOne to the live internet.
 
 > [!IMPORTANT]
 > Your website is now fully public. Anyone with the link can view your beautiful, Golden-Ratio designed dark mode gallery!

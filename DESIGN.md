@@ -1,6 +1,6 @@
-# Prompt Library Design System
+# MedhaOne Design System
 
-This file acts as the source of truth for the Prompt Library's UI/UX. It establishes an **Editorial Minimalist** aesthetic, ensuring that the platform feels premium, high-contrast, and modern. 
+This file acts as the source of truth for MedhaOne's UI/UX. It establishes an **Editorial Minimalist** aesthetic, ensuring that the platform feels premium, high-contrast, and modern. 
 
 ## 1. Project Identity
 - **Project Name:** MeiGen Gallery (PromptGram)

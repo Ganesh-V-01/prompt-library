@@ -84,7 +84,7 @@ export default function AdminDashboard() {
 
   return (
     <div className="dashboard-shell">
-      <div className="dashboard-heading"><div><p className="eyebrow">Administration</p><h1>Prompt Library control room</h1><p>Publish directly, review submissions, and approve contributors.</p></div><button className="secondary-button" onClick={() => supabase.auth.signOut().then(() => router.push('/'))}>Sign out</button></div>
+      <div className="dashboard-heading"><div><p className="eyebrow">Administration</p><h1>MedhaOne control room</h1><p>Publish directly, review submissions, and approve contributors.</p></div><button className="secondary-button" onClick={() => supabase.auth.signOut().then(() => router.push('/'))}>Sign out</button></div>
       {message && <div className={message.startsWith('Error') ? 'form-error' : 'form-message'}>{message}</div>}
 
       <section className="dashboard-card"><h2>Publish a prompt</h2><PromptSubmissionForm user={user} publishDirect onComplete={loadDashboard} /></section>

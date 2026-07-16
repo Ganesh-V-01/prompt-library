@@ -35,7 +35,7 @@ function MobileNavContent() {
         <>
           <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none', color: 'var(--text-primary)' }}>
             <BookOpen size={24} />
-            <span className="mobile-logo" style={{ fontWeight: 700, fontSize: '1.2rem', letterSpacing: '-0.5px' }}>Prompt Library</span>
+            <span className="mobile-logo" style={{ fontWeight: 700, fontSize: '1.2rem', letterSpacing: '-0.5px' }}>MedhaOne</span>
           </Link>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <button onClick={() => setIsSearching(true)} style={{ background: 'transparent', border: 'none', display: 'flex', cursor: 'pointer' }}>

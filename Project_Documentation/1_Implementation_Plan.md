@@ -1,6 +1,6 @@
-# Full-Stack AI Prompt Library (MeiGen.ai Clone)
+# Full-Stack MedhaOne (MeiGen.ai Clone)
 
-This plan outlines the architecture, technology stack, and step-by-step process for building and hosting a production-ready AI prompt library website. The initial focus will be on providing high-quality prompts for image generation models like NanoBanana and ChatGPT (DALL-E).
+This plan outlines the architecture, technology stack, and step-by-step process for building and hosting a production-ready MedhaOne website. The initial focus will be on providing high-quality prompts for image generation models like NanoBanana and ChatGPT (DALL-E).
 
 ## User Review Required
 

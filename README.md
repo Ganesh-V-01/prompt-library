@@ -1,6 +1,6 @@
-# Prompt Library
+# MedhaOne
 
-A free-tier-first library for discovering, copying, and reusing curated AI image and video prompts.
+Discover, share, and create with reusable AI prompts and workflows.
 
 ## Launch MVP
 

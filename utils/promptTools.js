@@ -21,6 +21,26 @@ export const STYLE_OPTIONS = [
   'Other',
 ];
 
+export const ACCEPTED_IMAGE_TYPES = Object.freeze([
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+]);
+
+export const IMAGE_FILE_ACCEPT = ACCEPTED_IMAGE_TYPES.join(',');
+export const MAX_ORIGINAL_IMAGE_SIZE = 10 * 1024 * 1024;
+
+export function validatePromptImage(file) {
+  if (!file) return 'Choose one JPG, PNG, or WebP image.';
+  if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
+    return 'Only JPG, PNG, or WebP images are allowed. Videos and folders are not supported.';
+  }
+  if (file.size > MAX_ORIGINAL_IMAGE_SIZE) {
+    return 'The original image must be smaller than 10 MB.';
+  }
+  return null;
+}
+
 export function getModelUrl(model = '') {
   const value = model.toLowerCase();
   if (value.includes('chatgpt') || value.includes('dall')) return 'https://chatgpt.com/';
@@ -41,13 +61,8 @@ export function normalizeExternalUrl(value) {
 }
 
 export async function compressPromptImage(file) {
-  const allowed = ['image/jpeg', 'image/png', 'image/webp'];
-  if (!allowed.includes(file.type)) {
-    throw new Error('Upload a JPG, PNG, or WebP image.');
-  }
-  if (file.size > 10 * 1024 * 1024) {
-    throw new Error('The original image must be smaller than 10 MB.');
-  }
+  const validationError = validatePromptImage(file);
+  if (validationError) throw new Error(validationError);
 
   const objectUrl = URL.createObjectURL(file);
   try {
@@ -66,6 +81,7 @@ export async function compressPromptImage(file) {
     canvas.width = width;
     canvas.height = height;
     const context = canvas.getContext('2d');
+    if (!context) throw new Error('Image compression is not supported by this browser.');
     context.drawImage(image, 0, 0, width, height);
 
     const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/webp', 0.82));

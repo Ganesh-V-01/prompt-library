@@ -209,10 +209,11 @@ set public = excluded.public,
     file_size_limit = excluded.file_size_limit,
     allowed_mime_types = excluded.allowed_mime_types;
 
+-- Public bucket URLs serve published images without a broad SELECT policy.
+-- Remove legacy policies that allow every client to list objects or upload.
+drop policy if exists "Public Access" on storage.objects;
 drop policy if exists "Public read images" on storage.objects;
-create policy "Public read images"
-on storage.objects for select to anon, authenticated
-using (bucket_id = 'prompt-images');
+drop policy if exists "Authenticated users can upload images" on storage.objects;
 
 drop policy if exists "Admin images" on storage.objects;
 drop policy if exists "Admins manage prompt images" on storage.objects;
@@ -225,6 +226,15 @@ drop policy if exists "Contributors upload own prompt images" on storage.objects
 create policy "Contributors upload own prompt images"
 on storage.objects for insert to authenticated
 with check (
+  bucket_id = 'prompt-images'
+  and public.is_contributor()
+  and (storage.foldername(name))[1] = auth.uid()::text
+);
+
+drop policy if exists "Contributors read own prompt images" on storage.objects;
+create policy "Contributors read own prompt images"
+on storage.objects for select to authenticated
+using (
   bucket_id = 'prompt-images'
   and public.is_contributor()
   and (storage.foldername(name))[1] = auth.uid()::text

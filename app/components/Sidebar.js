@@ -42,9 +42,9 @@ export default function Sidebar() {
       </nav>
 
       <div style={{ marginTop: 'auto', paddingTop: '24px', borderTop: '1px solid var(--border)' }}>
-        <Link href="/contribute" className="nav-item" style={{ color: 'var(--text-primary)', fontWeight: 'bold', display: 'flex', alignItems: 'center', background: 'var(--surface-hover)' }}>
+        <a href="https://forms.gle/yzY4CSvBCjGbjoEE6" target="_blank" rel="noopener noreferrer" className="nav-item" style={{ color: 'var(--text-primary)', fontWeight: 'bold', display: 'flex', alignItems: 'center', background: 'var(--surface-hover)' }}>
           <Upload className="icon" style={{ width: '18px', height: '18px' }} /> Contribute
-        </Link>
+        </a>
       </div>
 
       {isSearchOpen && (

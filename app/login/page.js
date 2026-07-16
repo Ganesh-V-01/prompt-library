@@ -39,7 +39,7 @@ export default function LoginPage() {
           <div className="auth-links"><Link href="/reset-password">Forgot password?</Link></div>
           <button className="primary-button" disabled={loading}>{loading ? 'Signing in...' : 'Sign in'}</button>
         </form>
-        <div className="auth-links"><Link href="/contribute">Apply to contribute</Link><Link href="/">Back to library</Link></div>
+        <div className="auth-links"><a href="https://forms.gle/yzY4CSvBCjGbjoEE6" target="_blank" rel="noopener noreferrer">Apply to contribute</a><Link href="/">Back to library</Link></div>
       </div>
     </div>
   );

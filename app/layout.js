@@ -49,7 +49,7 @@ export default function RootLayout({ children }) {
               <footer style={{ marginTop: 'auto', paddingTop: '40px', paddingBottom: '20px', borderTop: '1px solid var(--border)', textAlign: 'center', fontSize: '0.85rem', color: 'var(--text-secondary)', display: 'flex', justifyContent: 'center', gap: '24px' }}>
                 <Link href="/privacy" style={{ textDecoration: 'underline' }}>Privacy Policy</Link>
                 <Link href="/terms" style={{ textDecoration: 'underline' }}>Terms of Service</Link>
-                <Link href="/contribute" style={{ textDecoration: 'underline' }}>Contribute</Link>
+                <a href="https://forms.gle/yzY4CSvBCjGbjoEE6" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'underline' }}>Contribute</a>
                 <Link href="/report" style={{ textDecoration: 'underline' }}>Report Content</Link>
                 {contactEmail && <a href={`mailto:${contactEmail}`} style={{ textDecoration: 'underline' }}>Contact</a>}
               </footer>
